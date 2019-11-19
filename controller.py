@@ -11,9 +11,9 @@ class Controller():
         self.cur_coord = (0.0, 0.0)
 
     def connect(self, ip, db_name):
-        start = time.clock()
+        start = time.process_time()
         myclient = pymongo.MongoClient(host=ip,serverSelectionTimeoutMS=1000)
-        print('connected',time.clock()-start)
+        print('connected',time.process_time()-start)
         if db_name not in myclient.list_database_names():
             mydb = myclient[db_name]
             mycol = mydb["restaurants"]
@@ -23,9 +23,9 @@ class Controller():
         
 
     def add_rstrts_from_json(self, json_file):
-        start = time.clock()
+        start = time.process_time()
         lines = self.read_json_file(json_file)
-        print('readed',time.clock()-start)
+        print('readed',time.process_time()-start)
         docs = list()
         for line in lines:
             data = json.loads(line)
@@ -55,7 +55,7 @@ class Controller():
         self.cur_rstrt = res[0]
 
     def update_rstrts(self, condition):
-        start = time.clock()
+        start = time.process_time()
         query = dict()
         if condition.__contains__('name') and not condition['name'] == "":
             query['name'] =  { "$regex": "(.*)(%s)(.*)"%(condition['name']), '$options': "$i" }
@@ -70,7 +70,7 @@ class Controller():
             "restaurant_id": 1,
             "address.coord": 1
         }))
-        print('found',time.clock()-start)
+        print('found',time.process_time()-start)
         for rstrt in self.filtered_rstrts:
             coord = rstrt['address']['coord']
             del rstrt['address']
