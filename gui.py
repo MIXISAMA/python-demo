@@ -352,8 +352,8 @@ class Application(tk.Frame):
             return
         item = tree.selection()[0]
         index = tree.index(item)
+        tree.delete(item)
         self.controller.del_grade(index)
-        self.rstrts_list_tree.delete(item)
         self.update_rstrt_grades_gui()
 
 
