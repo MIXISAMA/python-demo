@@ -299,6 +299,7 @@ class Application(tk.Frame):
         docs = dict()
         for i in range(3):
             docs[keys[i]] = views[i*2+1].get()
+        self.controller.edit_address(docs)
         
     
     def edit_rstrt_coord(self,event=None):
