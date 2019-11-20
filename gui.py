@@ -435,6 +435,7 @@ class LoginGui(tk.Frame):
     def __init__(self, master, controller):
         master.geometry("+350+230")
         master.title("Connect to DB")
+        master.attributes("-topmost", True)
         self.controller = controller
         self.master = master
         super().__init__(master,width=100,height=50)
