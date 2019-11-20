@@ -9,6 +9,7 @@ class Controller():
         self.cur_index = None
         self.cur_rstrt = None
         self.cur_coord = (0.0, 0.0)
+        self.init_progress()
 
     def connect(self, ip, db_name):
         start = time.process_time()
@@ -27,7 +28,8 @@ class Controller():
         lines = self.read_json_file(json_file)
         print('readed',time.process_time()-start)
         docs = list()
-        for line in lines:
+        for i, line in enumerate(lines):
+            self.progress = (False, i/len(lines))
             data = json.loads(line)
             for grade in data["grades"]:
                 # Give me a break :( If you dont +0.0, its type would be NumberLong. Dont ask me why
@@ -35,8 +37,9 @@ class Controller():
             docs.append(data)
         try:
             self.mycol.insert_many(docs,ordered=False)
-        except Exception as e:
-            print(e)
+        except Exception:
+            pass
+        self.close_progress()
 
     def read_json_file(self,json_file):
         lines = None
@@ -113,9 +116,11 @@ class Controller():
         self.filtered_rstrts.sort(key=lambda r:r['dist'])
         
     def del_all(self):
-        for rstrt in self.filtered_rstrts:
+        for i, rstrt in enumerate(self.filtered_rstrts):
+            self.progress = (False, i/len(self.filtered_rstrts))
             self.mycol.delete_one({"restaurant_id": rstrt["restaurant_id"]})
         self.cur_rstrt = None
+        self.close_progress()
     
     def del_rstrt(self):
         if self.cur_rstrt is not None:
@@ -178,6 +183,12 @@ class Controller():
         distance=round(distance/1000,3)
         return distance
     
+    def init_progress(self):
+        self.progress = (False, 0)
+    
+    def close_progress(self):
+        self.progress = (True, 1)
+
     EMPTY_RSTRT = {
         "address": {
             "building": "",

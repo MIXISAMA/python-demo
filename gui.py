@@ -4,6 +4,7 @@ from tkinter import ttk
 from tkinter import filedialog
 from controller import Controller
 import time,datetime
+import threading
 
 class Application(tk.Frame):
 
@@ -260,8 +261,20 @@ class Application(tk.Frame):
         files_names = filedialog.askopenfilenames(filetypes=[("json file", "*.json")])
         if not files_names:
             return
-        for fn in files_names:
-            self.controller.add_rstrts_from_json(fn)
+        
+        def run():
+            self.controller.add_rstrts_from_json(files_names[0])
+        self.controller.init_progress()
+        threading.Thread(target=run).start()
+        pbg = ProgressBarGui(tk.Toplevel())
+        while True:
+            state, rate = self.controller.progress
+            if state:
+                break
+            pbg.update_gui(rate*0.9)
+        pbg.update_gui(1)
+        time.sleep(0.3)
+        pbg.master.destroy()
         self.update_rstrts_list_gui({})
 
     def del_rstrt(self):
@@ -337,9 +350,23 @@ class Application(tk.Frame):
         
 
     def del_all_rstrts(self):
-        if msgbox.askyesno('Sure?', 'Do you want to delete all information'):
+        if not msgbox.askyesno('Sure?', 'Do you want to delete all information'):
+            return
+        
+        def run():
             self.controller.del_all()
-            self.search()
+        self.controller.init_progress()
+        threading.Thread(target=run).start()
+        pbg = ProgressBarGui(tk.Toplevel())
+        while True:
+            state, rate = self.controller.progress
+            if state:
+                break
+            pbg.update_gui(rate)
+            time.sleep(0.2)
+        pbg.master.destroy()
+
+        self.search()
 
     def add_grade(self):
         if self.controller.cur_rstrt is None:
@@ -369,7 +396,7 @@ class Application(tk.Frame):
 class AddGradeGui(tk.Frame):
     def __init__(self,father):
         self.master = tk.Toplevel(father.master)
-        self.master.geometry("+350+230")
+        self.master.geometry("+600+400")
         self.master.title("Grade")
         super().__init__(self.master,width=100,height=50)
         self.controller = father.controller
@@ -473,5 +500,42 @@ class LoginGui(tk.Frame):
 
 
 
-LoginGui(tk.Tk(), Controller())
-tk.mainloop()
+
+class ProgressBarGui(tk.Frame):
+    def __init__(self, master, title=''):
+        super().__init__(master)
+        master.geometry("+600+400")
+        master.title(title)
+        master.protocol("WM_DELETE_WINDOW",self.do_nothing)
+        self.master = master
+        self.pack()
+        self.create_gui()
+        self.last_width = 0
+    
+    def create_gui(self):
+        self.cv = tk.Canvas(self,width=110,height=30)
+        self.cv.grid()
+
+        self.outer_rec = self.cv.create_rectangle(5,5,105,25,width=1)
+        self.inner_rec = self.cv.create_rectangle(5,5,5,25,fill = "#4F4F4F")
+
+    def update_gui(self, rate):
+        now_width = int(rate*100)
+        if now_width == self.last_width:
+            return
+        self.cv.coords(self.inner_rec,(5,5,5+now_width,25))
+        self.master.update()
+        self.last_width = now_width
+    
+    def do_nothing(self):
+        pass
+
+
+
+
+def main():
+    LoginGui(tk.Tk(), Controller())
+    tk.mainloop()
+
+if __name__=='__main__':
+    main()
