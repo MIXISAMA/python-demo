@@ -11,6 +11,7 @@ class Application(tk.Frame):
     def __init__(self, master, controller):
         master.geometry("+300+200")
         master.title("Humanity\'s most fundamental relationship is with what we eat.")
+        master.resizable(False, False)
         self.controller = controller
         self.master = master
         super().__init__(master)
@@ -450,6 +451,7 @@ class LoginGui(tk.Frame):
         master.geometry("+350+230")
         master.title("Connect to DB")
         master.attributes("-topmost", True)
+        master.resizable(False, False)
         self.controller = controller
         self.master = master
         super().__init__(master,width=100,height=50)
@@ -522,6 +524,7 @@ class ProgressBarGui(tk.Frame):
         master.geometry("+600+400")
         master.title(title)
         master.protocol("WM_DELETE_WINDOW",self.do_nothing)
+        master.resizable(False, False)
         self.master = master
         self.pack()
         self.create_gui()
