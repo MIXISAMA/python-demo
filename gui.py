@@ -64,9 +64,15 @@ class Application(tk.Frame):
             ety.grid(row=i,column=1,sticky=tk.EW)
             ety.bind("<Return>", self.search)
             self.search_views_list.append(ety)
+        
+        btns_fm = tk.Frame(master)
+        btns_fm.grid(row=4,column=0,columnspan=2)
 
-        search_btn = tk.Button(master, text="search",command=self.search)
-        search_btn.grid(row=4,column=0,columnspan=2)
+        clear_btn = tk.Button(btns_fm,text="clear",command=self.clear_search)
+        clear_btn.grid(row=0,column=0)
+
+        search_btn = tk.Button(btns_fm, text="search",command=self.search)
+        search_btn.grid(row=0,column=1)
 
     def create_operation_gui(self):
         master = self.operation_fm
@@ -251,6 +257,11 @@ class Application(tk.Frame):
         self.update_rstrt_info_gui()
         self.update_rstrt_address_gui()
         self.update_rstrt_grades_gui()
+    
+    def clear_search(self, event=None):
+        views = self.search_views_list
+        for view in views:
+            view.delete(0,tk.END)
 
     def search(self, event=None):
         views = self.search_views_list
