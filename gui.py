@@ -167,6 +167,8 @@ class Application(tk.Frame):
             ety.bind("<FocusOut>",self.edit_rstrt_coord)
             ety.bind("<Return>",self.edit_rstrt_coord)
             self.rstrt_address_views.append(ety)
+        
+        self._locked = False
 
     def show_rstrt_address_gui(self):
         rstrt = self.controller.cur_rstrt
@@ -316,6 +318,8 @@ class Application(tk.Frame):
         
     
     def edit_rstrt_coord(self,event=None):
+        if self._locked:
+            return
         try:
             views = self.rstrt_address_views
             lng = views[8].get()
@@ -326,8 +330,12 @@ class Application(tk.Frame):
                 elif lng[-1] == 'W' or lng[-1] == 'w':
                     lng_var = -1
                 else:
-                    raise Exception("Last symbol should be E or W or e or w not",lng[-1])
-                lng_var *= float(lng[:-1])
+                    raise Exception("Last symbol should be E or W or e or w not "+lng[-1])
+                
+                var = float(lng[:-1])
+                if not 0 <= var <= 180:
+                    raise Exception("Longitude can only be between 0 and 180 E/W")
+                lng_var *= var
 
             lat = views[9].get()
             lat_var = None
@@ -337,8 +345,12 @@ class Application(tk.Frame):
                 elif lat[-1] == 'S' or lat[-1] == 's':
                     lat_var = -1
                 else:
-                    raise Exception("Last symbol should be S or N or s or n not",lng[-1])
-                lat_var *= float(lat[:-1])
+                    raise Exception("Last symbol should be S or N or s or n not "+lng[-1])
+                
+                var = float(lat[:-1])
+                if not 0 <= var <= 90:
+                    raise Exception("Latitude can only be between 0 and 90 N/S")
+                lat_var *= var
             self.controller.edit_coord(lng_var, lat_var)
 
             tree = self.rstrts_list_tree
@@ -346,7 +358,9 @@ class Application(tk.Frame):
             rstrt = self.controller.filtered_rstrts[self.controller.cur_index]
             tree.set(item, column=0, value="%.2fkm"%(rstrt['dist']))
         except Exception as e:
+            self._locked = True
             msgbox.showerror('error',e)
+            self._locked = False
         
 
     def del_all_rstrts(self):
