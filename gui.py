@@ -282,12 +282,13 @@ class Application(tk.Frame):
         threading.Thread(target=run).start()
         pbg = ProgressBarGui(tk.Toplevel())
         while True:
+            time.sleep(0.1)
             state, rate = self.controller.progress
             if state:
                 break
             pbg.update_gui(rate*0.9)
         pbg.update_gui(1)
-        time.sleep(0.3)
+        time.sleep(0.1)
         pbg.master.destroy()
         self.update_rstrts_list_gui({})
 
@@ -378,21 +379,9 @@ class Application(tk.Frame):
     def del_all_rstrts(self):
         if not msgbox.askyesno('Sure?', 'Do you want to delete all information'):
             return
-        
-        def run():
-            self.controller.del_all()
-        self.controller.init_progress()
-        threading.Thread(target=run).start()
-        pbg = ProgressBarGui(tk.Toplevel())
-        while True:
-            state, rate = self.controller.progress
-            if state:
-                break
-            pbg.update_gui(rate)
-            time.sleep(0.2)
-        pbg.master.destroy()
-
-        self.search()
+        self.controller.del_all()
+        self.refresh_rstrts_list_gui()
+        self.update_cur_rstrt()
 
     def add_grade(self):
         if self.controller.cur_rstrt is None:

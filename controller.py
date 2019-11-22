@@ -26,7 +26,7 @@ class Controller():
     def add_rstrts_from_json(self, json_file):
         start = time.process_time()
         lines = self.read_json_file(json_file)
-        print('readed',time.process_time()-start)
+        print('read',time.process_time()-start)
         docs = list()
         for i, line in enumerate(lines):
             self.progress = (False, i/len(lines))
@@ -35,6 +35,7 @@ class Controller():
                 # Give me a break :( If you dont +0.0, its type would be NumberLong. Dont ask me why
                 grade["date"] = grade["date"]["$date"]+0.0
             docs.append(data)
+            print(i)
         try:
             self.mycol.insert_many(docs,ordered=False)
         except Exception:
@@ -116,11 +117,9 @@ class Controller():
         self.filtered_rstrts.sort(key=lambda r:r['dist'])
         
     def del_all(self):
-        for i, rstrt in enumerate(self.filtered_rstrts):
-            self.progress = (False, i/len(self.filtered_rstrts))
-            self.mycol.delete_one({"restaurant_id": rstrt["restaurant_id"]})
+        self.mycol.delete_many({"restaurant_id":{'$in':[rstrt["restaurant_id"] for rstrt in self.filtered_rstrts]}})
+        self.filtered_rstrts = []
         self.cur_rstrt = None
-        self.close_progress()
     
     def del_rstrt(self):
         if self.cur_rstrt is not None:
