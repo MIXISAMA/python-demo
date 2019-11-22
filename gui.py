@@ -288,12 +288,11 @@ class Application(tk.Frame):
                 break
             pbg.update_gui(rate*0.9)
         pbg.update_gui(1)
-        time.sleep(0.1)
         pbg.master.destroy()
         self.update_rstrts_list_gui({})
 
     def del_rstrt(self):
-        if self.rstrts_list_tree.selection() is None:
+        if not self.rstrts_list_tree.selection():
             return
         self.controller.del_rstrt()
         self.rstrts_list_tree.delete(self.rstrts_list_tree.selection()[0])

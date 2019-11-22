@@ -35,7 +35,6 @@ class Controller():
                 # Give me a break :( If you dont +0.0, its type would be NumberLong. Dont ask me why
                 grade["date"] = grade["date"]["$date"]+0.0
             docs.append(data)
-            print(i)
         try:
             self.mycol.insert_many(docs,ordered=False)
         except Exception:
