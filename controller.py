@@ -1,7 +1,11 @@
+'''
+controller.py is only responsible for interacting with the database.
+'''
 import json
-import pymongo
 import time
 import math
+
+import pymongo
 
 class Controller():
     def __init__(self):
